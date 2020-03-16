@@ -56,10 +56,10 @@ arro=Array.from(new Set(arro));
 
 
 await browser.close();
-ic.forEach((a,b)=>{
-    if(a[0]=='.'&&a[1]=='/')ic[b]=siteUrl+a.substring(2);
-});
-ic=Array.from(new Set(ic));
+// ic.forEach((a,b)=>{
+//     if(a[0]=='.'&&a[1]=='/')ic[b]=siteUrl+a.substring(2);
+// });
+// ic=Array.from(new Set(ic));
 
 
 // res.status(200).json({"extractedUrls":arro,"extractedImages":ic});
