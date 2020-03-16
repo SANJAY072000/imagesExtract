@@ -9,9 +9,10 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 const port=process.env.PORT||3000;
 
+app.get('/',(req,res)=>res.status(200)
+.json({"Success":"Deployed Successfully"}));
 
-
-app.post('/',async function(req,res){
+app.post('/extract',async function(req,res){
 let links=[],linkArray=[],titleNodeList=[],siteUrl,i,arro=[],page,ic=[],j;
 const browser=await puppeteer.launch({headless:false});
 page=await browser.newPage();
