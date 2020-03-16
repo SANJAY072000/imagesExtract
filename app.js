@@ -14,7 +14,10 @@ app.get('/',(req,res)=>res.status(200)
 
 app.post('/extract',async function(req,res){
 let links=[],linkArray=[],titleNodeList=[],siteUrl,i,arro=[],page,ic=[],j;
-const browser=await puppeteer.launch({headless:true});
+const browser=await puppeteer.launch({ args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+  ],headless:true});
 page=await browser.newPage();
 try{
 siteUrl=req.body.url;
