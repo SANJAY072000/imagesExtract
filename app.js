@@ -2,6 +2,7 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const bodyParser = require('body-parser');
 
+
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -9,15 +10,17 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 const port=process.env.PORT||3000;
 
+
 app.get('/',(req,res)=>res.status(200)
 .json({"Success":"Deployed Successfully"}));
+
 
 app.post('/extract',async function(req,res){
 let links=[],linkArray=[],titleNodeList=[],siteUrl,i,arro=[],page,ic=[],j;
 const browser=await puppeteer.launch({ args: [
     '--no-sandbox',
     '--disable-setuid-sandbox',
-  ],headless:true});
+  ],headless:false});
 page=await browser.newPage();
 try{
 siteUrl=req.body.url;
@@ -28,7 +31,7 @@ linkArray=[];
 for (i=0;i<titleNodeList.length;++i){
 link=titleNodeList[i].getAttribute("href");
 if(link!==null&&link!=='javascript: void(0)'&&link[0]!=='#'&&
-link!==undefined&&typeof link=='string'){
+link!==undefined&&typeof link=='string'&&link!==""){
 if(link[0]=='/')
 linkArray.push(siteUrl+decodeURIComponent(link.substring(1)));
 else 
@@ -36,6 +39,16 @@ linkArray.push(decodeURIComponent(link));
 }}
 return linkArray;
 },siteUrl);
+
+
+ic=await page.evaluate(()=>{
+titleNodeList=document.querySelectorAll("img");
+linkArray=[];
+for (i=0;i<titleNodeList.length;++i){
+link=titleNodeList[i].getAttribute("src");
+if(link!==null&&link!=='javascript: void(0)'&&link[0]!=='#'&&
+link!==undefined&&typeof link=='string'&&link!=="")linkArray.push(link);}
+return linkArray;});
 
 
 arro=links.filter((a,b)=>{if(a.includes(siteUrl))return a;});
@@ -59,14 +72,17 @@ arro=Array.from(new Set(arro));
 
 
 await browser.close();
-// ic.forEach((a,b)=>{
-//     if(a[0]=='.'&&a[1]=='/')ic[b]=siteUrl+a.substring(2);
-// });
-// ic=Array.from(new Set(ic));
+ic.forEach((a,b)=>{
+    {if(a[0]=='.'&&a[1]=='/')ic[b]=siteUrl+a.substring(2);
+    else if(a[0]=='/'&&a[1]=='/')ic[b]=a;
+    else if(a[0]=='/'&&a[1]!=='/')ic[b]=siteUrl+a.substring(1);
+    else ic[b]=a;}
+});
+ic=Array.from(new Set(ic));
 
 
-// res.status(200).json({"extractedUrls":arro,"extractedImages":ic});
-res.status(200).json({"extractedUrls":arro});
+res.status(200).json({"extractedUrls":arro,"extractedImages":ic});
+// res.status(200).json({"extractedUrls":arro});
 }
 catch(e){console.log(e);}});
 
