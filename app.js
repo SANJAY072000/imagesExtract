@@ -16,7 +16,8 @@ app.get('/',(req,res)=>res.status(200)
 
 
 app.post('/extract',async function(req,res){
-let links=[],linkArray=[],titleNodeList=[],siteUrl,i,arro=[],page,ic=[],j;
+let links=[],linkArray=[],titleNodeList=[],siteUrl,i,arro=[],
+page,ic=[],j,out=[];
 const browser=await puppeteer.launch({ args: [
     '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -72,16 +73,28 @@ arro=Array.from(new Set(arro));
 
 
 await browser.close();
-ic.forEach((a,b)=>{
-    {if(a[0]=='.'&&a[1]=='/')ic[b]=siteUrl+a.substring(2);
-    else if(a[0]=='/'&&a[1]=='/')ic[b]=a;
-    else if(a[0]=='/'&&a[1]!=='/')ic[b]=siteUrl+a.substring(1);
-    else ic[b]=a;}
-});
+for(i=0;i<ic.length;++i){
+    {if(ic[i][0]=='.'&&ic[i][1]=='/')ic[i]=siteUrl+ic[i].substring(2);
+    else if(ic[i][0]=='/'&&ic[i][1]=='/')ic[i]=ic[i];
+    else if(ic[i][0]=='/'&&ic[i][1]!=='/')ic[i]=siteUrl+ic[i].substring(1);
+    else ic[i]=ic[i];}}
 ic=Array.from(new Set(ic));
 
 
-res.status(200).json({"extractedUrls":arro,"extractedImages":ic});
+let k=0;
+for(i=0;i<arro.length;++i,++k){
+  let tmpo={};
+  tmpo.url=arro[i];
+  tmpo.images=[];
+  if(ic.length==k){j=ic.length-1;k=0;}
+  else j=ic.length-k-1;
+  for(;j>=0;tmpo.images.push(ic[j]),--j);
+  out.push(tmpo);
+}
+
+
+
+res.status(200).json({"extractedData":out});
 // res.status(200).json({"extractedUrls":arro});
 }
 catch(e){console.log(e);}});
